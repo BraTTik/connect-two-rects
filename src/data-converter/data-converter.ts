@@ -1,5 +1,5 @@
 import { ConnectionPoint, Point, Rect } from "models";
-import { isConnectionPointOnEdge } from "./utils";
+import { isConnectionPointOnEdge, isRectangleIntersect } from "./utils";
 
 export function dataConverter(
   rect1: Rect,
@@ -16,6 +16,10 @@ export function dataConverter(
     throw new Error(
       "ConnectionPoint2 is not on the edge of Rect2 or wrong connection angle",
     );
+  }
+
+  if (isRectangleIntersect(rect1, rect2)) {
+    throw new Error("Rectangles intersect");
   }
 
   return [];

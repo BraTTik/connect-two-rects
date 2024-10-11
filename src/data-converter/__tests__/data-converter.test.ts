@@ -23,13 +23,20 @@ const createRectWithCPoint = (
 });
 
 const { rect: rect1, cPoint: cPoint1 } = createRectWithCPoint(5, 10);
-const { rect: rect2, cPoint: cPoint2 } = createRectWithCPoint(5, 10);
+const { rect: rect2, cPoint: cPoint2 } = createRectWithCPoint(40, 40);
 const wrongCPoint = { ...cPoint2, angle: 90 };
 
 describe("dataConverter", () => {
   test("throws as error on wrong connection point", () => {
     expect(() => dataConverter(rect1, rect2, cPoint1, wrongCPoint)).toThrow(
       Error,
+    );
+  });
+
+  test("throws as error on rectangle intersection", () => {
+    expect(() => dataConverter(rect1, rect2, cPoint1, cPoint2)).not.toThrow();
+    expect(() => dataConverter(rect1, rect1, cPoint1, cPoint1)).toThrow(
+      "Rectangles intersect",
     );
   });
 });

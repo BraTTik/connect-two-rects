@@ -1,5 +1,11 @@
 import { ConnectionPoint, Point, Rect } from "models";
-import { angle, direction, isPointOnLine, toRadians } from "../math";
+import {
+  angle,
+  direction,
+  isPointOnLine,
+  toRadians,
+  getIntersection,
+} from "../math";
 
 type Edge = [Point, Point];
 
@@ -38,6 +44,23 @@ export const isConnectionAngleRight = (
 ): boolean => {
   const radians = toRadians(degree);
   return EdgeTypeAngle[type] === radians;
+};
+
+export const isRectangleIntersect = (rect1: Rect, rect2: Rect): boolean => {
+  const rect1Edges = Object.values(getRectEdges(rect1));
+  const rect2Edges = Object.values(getRectEdges(rect2));
+
+  let hasIntersection = false;
+
+  for (const edge1 of rect1Edges) {
+    if (hasIntersection) break;
+    for (const edge2 of rect2Edges) {
+      if (hasIntersection) break;
+      hasIntersection = Boolean(getIntersection(edge1, edge2));
+    }
+  }
+
+  return hasIntersection;
 };
 
 export const isConnectionPointOnEdge = (
