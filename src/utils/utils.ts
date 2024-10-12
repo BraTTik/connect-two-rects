@@ -11,7 +11,7 @@ type Edge = [Point, Point];
 
 type EdgeType = "top" | "bottom" | "left" | "right";
 
-const EdgeTypeAngle = {
+export const EdgeTypeAngle = {
   top: -Math.PI / 2,
   bottom: Math.PI / 2,
   left: -Math.PI,

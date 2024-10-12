@@ -1,5 +1,7 @@
 import { ConnectionPoint, Point, Rect } from "models";
-import { isConnectionPointOnEdge, isRectangleIntersect } from "./utils";
+import { isConnectionPointOnEdge, isRectangleIntersect } from "../utils";
+
+// const lineAngle = angle(direction(a, b)) in radians;
 
 export function dataConverter(
   rect1: Rect,

@@ -1,5 +1,8 @@
 import { IntersectionPoint, Point } from "models";
 
+export const minmax = (min: number, max: number) => (pivot: number) =>
+  Math.max(Math.min(max, pivot), min);
+
 export function subtract(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y };
 }
