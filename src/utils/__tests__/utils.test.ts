@@ -1,4 +1,8 @@
-import { isConnectionPointOnEdge, isRectangleIntersect } from "../utils";
+import {
+  getConnectionPointEdge,
+  getRectEdges,
+  isRectangleIntersect,
+} from "../utils";
 import { Rect, Rectangle } from "../../models";
 import { describe, expect, test } from "@jest/globals";
 
@@ -14,25 +18,50 @@ const rect: Rect = {
 };
 
 describe("utils", () => {
-  test("isConnectionPointOnEdge", () => {
-    expect(
-      isConnectionPointOnEdge({ point: { x: 0, y: 10 }, angle: -180 }, rect),
-    ).toBe(true);
-    expect(
-      isConnectionPointOnEdge({ point: { x: 0, y: 10 }, angle: 0 }, rect),
-    ).toBe(false);
-    expect(
-      isConnectionPointOnEdge({ point: { x: 5, y: 0 }, angle: -90 }, rect),
-    ).toBe(true);
-    expect(
-      isConnectionPointOnEdge({ point: { x: 5, y: 0 }, angle: 90 }, rect),
-    ).toBe(false);
-    expect(
-      isConnectionPointOnEdge({ point: { x: 5, y: 20 }, angle: 90 }, rect),
-    ).toBe(true);
-    expect(
-      isConnectionPointOnEdge({ point: { x: 5, y: 20 }, angle: -90 }, rect),
-    ).toBe(false);
+  describe("getConnectionPointEdge", () => {
+    const r = getRectEdges(rect);
+
+    test("top edge", () => {
+      const point = { x: 5, y: 0 };
+      expect(getConnectionPointEdge({ point, angle: -90 }, rect)).toEqual(
+        r.top,
+      );
+      expect(getConnectionPointEdge({ point, angle: 90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: 0 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: -180 }, rect)).toBe(null);
+    });
+
+    test("bottom edge", () => {
+      const point = { x: 5, y: 20 };
+      expect(getConnectionPointEdge({ point, angle: 90 }, rect)).toEqual(
+        r.bottom,
+      );
+      expect(getConnectionPointEdge({ point, angle: -90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: 0 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: -180 }, rect)).toBe(null);
+    });
+
+    test("left edge", () => {
+      const point = { x: 0, y: 10 };
+      expect(getConnectionPointEdge({ point, angle: -180 }, rect)).toEqual(
+        r.left,
+      );
+
+      expect(getConnectionPointEdge({ point, angle: -90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: 90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: 0 }, rect)).toBe(null);
+    });
+
+    test("right edge", () => {
+      const point = { x: 10, y: 10 };
+      expect(
+        getConnectionPointEdge({ point: { x: 10, y: 10 }, angle: 0 }, rect),
+      ).toEqual(r.right);
+
+      expect(getConnectionPointEdge({ point, angle: -90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: 90 }, rect)).toBe(null);
+      expect(getConnectionPointEdge({ point, angle: -180 }, rect)).toBe(null);
+    });
   });
 
   test("isRectangleIntersect", () => {

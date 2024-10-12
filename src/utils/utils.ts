@@ -63,17 +63,33 @@ export const isRectangleIntersect = (rect1: Rect, rect2: Rect): boolean => {
   return hasIntersection;
 };
 
-export const isConnectionPointOnEdge = (
+export const getConnectionPointEdge = (
   cPoint: ConnectionPoint,
   rect: Rect,
-): boolean => {
+): Edge | null => {
   const { point, angle } = cPoint;
   const { top, left, right, bottom } = getRectEdges(rect);
 
-  return (
-    (isPointOnLine(point, top) && isConnectionAngleRight("top", angle)) ||
-    (isPointOnLine(point, left) && isConnectionAngleRight("left", angle)) ||
-    (isPointOnLine(point, right) && isConnectionAngleRight("right", angle)) ||
-    (isPointOnLine(point, bottom) && isConnectionAngleRight("bottom", angle))
-  );
+  let edge: Edge | null = null;
+
+  if (isPointOnLine(point, top) && isConnectionAngleRight("top", angle)) {
+    edge = top;
+  } else if (
+    isPointOnLine(point, left) &&
+    isConnectionAngleRight("left", angle)
+  ) {
+    edge = left;
+  } else if (
+    isPointOnLine(point, right) &&
+    isConnectionAngleRight("right", angle)
+  ) {
+    edge = right;
+  } else if (
+    isPointOnLine(point, bottom) &&
+    isConnectionAngleRight("bottom", angle)
+  ) {
+    edge = bottom;
+  }
+
+  return edge;
 };

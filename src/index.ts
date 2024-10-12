@@ -17,7 +17,7 @@ workplace.addShape(line);
 const cPoint = rect.getConnectionPoint("top", 0.3);
 
 const v1 = toXY({
-  magnitude: 20,
+  magnitude: 10,
   direction: cPoint.toRadians(),
 });
 
