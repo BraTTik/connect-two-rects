@@ -7,7 +7,7 @@ workplace.height = window.innerHeight;
 workplace.width = window.innerWidth;
 
 const rect1 = new Rectangle({ x: 100, y: 100 }, { width: 50, height: 100 });
-const rect2 = new Rectangle({ x: 100, y: 300 }, { width: 50, height: 100 });
+const rect2 = new Rectangle({ x: 400, y: 100 }, { width: 50, height: 100 });
 const line = new Line();
 
 workplace.addShape(rect1);
@@ -21,8 +21,3 @@ const linePoints = dataConverter(rect1, rect2, cPoint1, cPoint2);
 line.points.push(...linePoints);
 
 workplace.update();
-
-// window.drawLine = function (points: Point[]) {
-//   line.points = points;
-//   workplace.update();
-// };

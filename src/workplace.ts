@@ -1,9 +1,13 @@
-import { Shape } from "models/shape";
+import { MovableShape, Shape } from "models/shape";
+import { PointerHelper } from "./pointer-helper";
+
+type WorkspaceShape = Shape | MovableShape;
 
 export class Workplace {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
-  private shapes: Shape[] = [];
+  private shapes: WorkspaceShape[] = [];
+  private pointerHelper: PointerHelper;
 
   get width() {
     return this.canvas.width;
@@ -31,13 +35,15 @@ export class Workplace {
     if (!this.context) {
       throw new Error("No Canvas Rendering Context");
     }
+    this.pointerHelper = new PointerHelper(this.canvas);
+    this.pointerHelper.on("click", console.log);
   }
 
-  addShape(shape: Shape) {
+  addShape(shape: WorkspaceShape) {
     this.shapes.push(shape);
   }
 
-  removeShape(shape: Shape) {
+  removeShape(shape: WorkspaceShape) {
     this.shapes = this.shapes.filter((s) => s !== shape);
   }
 
@@ -45,7 +51,7 @@ export class Workplace {
     return this.context;
   }
 
-  drawShape(shape: Shape) {
+  drawShape(shape: WorkspaceShape) {
     shape.draw(this.context);
   }
 
