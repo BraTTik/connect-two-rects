@@ -5,4 +5,6 @@ export type PointerEvents = {
   drag: { event: { currentPoint: Point; diff: Point; startPoint: Point } };
   dragend: { event: { currentPoint: Point; diff: Point; startPoint: Point } };
   move: { event: Point };
+  down: { event: Point };
+  up: { event: Point };
 };

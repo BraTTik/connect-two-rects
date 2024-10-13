@@ -1,4 +1,4 @@
-import { Evented, EventHandler, EventListeners } from "../event-listeners";
+import { Evented, EventListeners } from "../event-listeners";
 import { PointerEvents } from "./types";
 import { Point } from "models";
 
@@ -57,6 +57,7 @@ export class PointerHelper implements Evented<PointerEvents> {
     this.isPointerDown = true;
     this.clickStart = Date.now();
     this.pointerDragStart = { x, y };
+    this.notify("down", { event: { x, y } });
   };
 
   private pointerUp = (event: PointerEvent) => {
@@ -81,6 +82,7 @@ export class PointerHelper implements Evented<PointerEvents> {
         },
       });
     }
+    this.notify("up", { event: { x, y } });
   };
 
   private isOverElement = () => {

@@ -18,17 +18,28 @@ export const EdgeTypeAngle = {
   right: 0,
 };
 
-export const getRectEdges = (rect: Rect) => {
+export const getRectBounds = (rect: Rect) => {
   const { size, position } = rect;
 
   const { x, y } = position;
   const wOffset = size.width / 2;
   const hOffset = size.height / 2;
 
-  const topLeft: Point = { x: x - wOffset, y: y - hOffset };
-  const topRight: Point = { x: x + wOffset, y: y - hOffset };
-  const bottomLeft: Point = { x: x - wOffset, y: y + hOffset };
-  const bottomRight: Point = { x: x + wOffset, y: y + hOffset };
+  return {
+    top: y - hOffset,
+    left: x - wOffset,
+    right: x + wOffset,
+    bottom: y + hOffset,
+  };
+};
+
+export const getRectEdges = (rect: Rect) => {
+  const bounds = getRectBounds(rect);
+
+  const topLeft: Point = { x: bounds.left, y: bounds.top };
+  const topRight: Point = { x: bounds.right, y: bounds.top };
+  const bottomLeft: Point = { x: bounds.left, y: bounds.bottom };
+  const bottomRight: Point = { x: bounds.right, y: bounds.bottom };
 
   const top: Edge = [topLeft, topRight];
   const bottom: Edge = [bottomLeft, bottomRight];

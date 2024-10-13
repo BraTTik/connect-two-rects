@@ -1,12 +1,12 @@
-import { Shape } from "../shape";
+import { MovableShape } from "../shape";
 import { Point } from "../point";
 import { Size } from "../size";
 import { lerpPoint, minmax } from "../../math";
-import { getRectEdges, EdgeTypeAngle } from "../../utils";
+import { getRectEdges, EdgeTypeAngle, getRectBounds } from "../../utils";
 import { CPoint } from "../connection-point";
 import { Rect } from "./types";
 
-export class Rectangle implements Shape, Rect {
+export class Rectangle implements MovableShape, Rect {
   private static MIN_CONNECTION_POINT_POSITION = 0.1;
   private static MAX_CONNECTION_POINT_POSITION = 0.9;
 
@@ -14,6 +14,17 @@ export class Rectangle implements Shape, Rect {
     public position: Point,
     public size: Size,
   ) {}
+
+  move(position: Point): void {
+    this.position = position;
+  }
+
+  isContainsPoint(point: Point): boolean {
+    const { top, left, bottom, right } = getRectBounds(this);
+    const { x, y } = point;
+
+    return x >= left && x <= right && y >= top && y <= bottom;
+  }
 
   getConnectionPoint(
     type: "top" | "left" | "right" | "bottom",

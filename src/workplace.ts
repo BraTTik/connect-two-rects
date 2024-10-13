@@ -1,13 +1,23 @@
 import { MovableShape, Shape } from "models/shape";
-import { PointerHelper } from "./pointer-helper";
+import { PointerEvents, PointerHelper } from "./pointer-helper";
+import { Point } from "models";
+import { Evented, EventListeners } from "./event-listeners";
 
 type WorkspaceShape = Shape | MovableShape;
 
-export class Workplace {
+type WorkplaceEvents = {
+  update: {};
+};
+
+export class Workplace implements Evented<WorkplaceEvents> {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private shapes: WorkspaceShape[] = [];
   private pointerHelper: PointerHelper;
+  private movingShape: MovableShape | null = null;
+  private initialMovablePosition: Point = { x: 0, y: 0 };
+  private listeners: EventListeners<WorkplaceEvents> =
+    new EventListeners<WorkplaceEvents>();
 
   get width() {
     return this.canvas.width;
@@ -36,7 +46,9 @@ export class Workplace {
       throw new Error("No Canvas Rendering Context");
     }
     this.pointerHelper = new PointerHelper(this.canvas);
-    this.pointerHelper.on("click", console.log);
+    this.pointerHelper.on("down", this.pointerDown);
+    this.pointerHelper.on("up", this.pointerUp);
+    this.pointerHelper.on("drag", this.handleDrag);
   }
 
   addShape(shape: WorkspaceShape) {
@@ -56,9 +68,44 @@ export class Workplace {
   }
 
   update() {
+    this.notify("update", {});
     this.context.clearRect(0, 0, this.width, this.height);
     for (const shape of this.shapes) {
       this.drawShape(shape);
     }
   }
+
+  private handleDrag = ({ event }: PointerEvents["drag"]) => {
+    const { diff } = event;
+    if (this.movingShape) {
+      this.movingShape.move({
+        x: this.initialMovablePosition.x + diff.x,
+        y: this.initialMovablePosition.y + diff.y,
+      });
+      this.update();
+    }
+  };
+
+  private pointerDown = ({ event }: PointerEvents["down"]) => {
+    const { x, y } = event;
+
+    for (const shape of this.shapes) {
+      if ("move" in shape && shape.isContainsPoint({ x, y })) {
+        this.movingShape = shape;
+        this.initialMovablePosition = {
+          x: shape.position.x,
+          y: shape.position.y,
+        };
+        break;
+      }
+    }
+  };
+
+  private pointerUp = () => {
+    this.movingShape = null;
+  };
+
+  notify = this.listeners.notify.bind(this.listeners);
+  off = this.listeners.off.bind(this.listeners);
+  on = this.listeners.on.bind(this.listeners);
 }

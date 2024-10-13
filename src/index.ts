@@ -1,4 +1,4 @@
-import { Line, Point, Rectangle } from "./models";
+import { Line, Rectangle } from "./models";
 import { Workplace } from "./workplace";
 import { dataConverter } from "./data-converter";
 
@@ -14,10 +14,12 @@ workplace.addShape(rect1);
 workplace.addShape(rect2);
 workplace.addShape(line);
 
-const cPoint1 = rect1.getConnectionPoint("top", 0.5);
-const cPoint2 = rect2.getConnectionPoint("bottom", 0.5);
+const redrawConnectionLine = () => {
+  const cPoint1 = rect1.getConnectionPoint("top", 0.5);
+  const cPoint2 = rect2.getConnectionPoint("bottom", 0.5);
+  line.points = dataConverter(rect1, rect2, cPoint1, cPoint2);
+};
 
-const linePoints = dataConverter(rect1, rect2, cPoint1, cPoint2);
-line.points.push(...linePoints);
+workplace.on("update", redrawConnectionLine);
 
 workplace.update();

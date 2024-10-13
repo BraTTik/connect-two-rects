@@ -7,5 +7,5 @@ export interface Shape {
 export interface MovableShape extends Shape {
   position: Point;
   move(position: Point): void;
-  isIncludePoint(point: Point): boolean;
+  isContainsPoint(point: Point): boolean;
 }
