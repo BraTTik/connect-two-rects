@@ -118,4 +118,32 @@ export const getConnectionPointEdge = (
   return edge;
 };
 
-export const isPointsEqual = (a: Point, b: Point) => a.x === b.x && a.y === b.y;
+export const getLeftRightRect = (rect1: Rect, rect2: Rect) => {
+  const bounds1 = getRectBounds(rect1);
+  const bounds2 = getRectBounds(rect2);
+
+  const leftRect = bounds1.left <= bounds2.left ? bounds1 : bounds2;
+  const topRect = bounds1.top <= bounds2.top ? bounds1 : bounds2;
+
+  const rightRect = leftRect === bounds1 ? bounds2 : bounds1;
+  const bottomRect = topRect === bounds1 ? bounds2 : bounds1;
+
+  return { leftRect, rightRect, bottomRect, topRect };
+};
+
+export const getDistanceBetweenRects = (rect1: Rect, rect2: Rect) => {
+  const { leftRect, rightRect, topRect, bottomRect } = getLeftRightRect(
+    rect1,
+    rect2,
+  );
+
+  const xDistance = leftRect.right - rightRect.left;
+  const yDistance = topRect.bottom - bottomRect.top;
+
+  return { xDistance, yDistance };
+};
+
+export const growRect = (rect: Rect, value: number): Rect => ({
+  ...rect,
+  size: { height: rect.size.height + value, width: rect.size.width + value },
+});

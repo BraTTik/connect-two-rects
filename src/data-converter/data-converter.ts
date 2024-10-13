@@ -1,7 +1,9 @@
 import { ConnectionPoint, Point, Rect } from "../models";
 import {
   getConnectionPointEdge,
-  getRectBounds,
+  getDistanceBetweenRects,
+  getLeftRightRect,
+  growRect,
   isLineIntersectRect,
   isRectangleIntersect,
 } from "../utils";
@@ -113,17 +115,11 @@ const getMiddleEdges = (
   rect1: Rect,
   rect2: Rect,
 ): { horizontal: Segment; vertical: Segment } => {
-  const bounds1 = getRectBounds(rect1);
-  const bounds2 = getRectBounds(rect2);
-
-  const leftRect = bounds1.left <= bounds2.left ? bounds1 : bounds2;
-  const topRect = bounds1.top <= bounds2.top ? bounds1 : bounds2;
-
-  const rightRect = leftRect === bounds1 ? bounds2 : bounds1;
-  const bottomRect = topRect === bounds1 ? bounds2 : bounds1;
-
-  const xDistance = leftRect.right - rightRect.left;
-  const yDistance = topRect.bottom - bottomRect.top;
+  const { leftRect, bottomRect, topRect, rightRect } = getLeftRightRect(
+    rect1,
+    rect2,
+  );
+  const { xDistance, yDistance } = getDistanceBetweenRects(rect1, rect2);
 
   const xCenter = leftRect.right - xDistance / 2;
   const yCenter = bottomRect.bottom - yDistance / 2;
@@ -171,15 +167,6 @@ const findShortestPath = (
       { x, y: startCLine[1].y },
       { x, y: endCLine[0].y },
     ];
-  };
-
-  const getMiddleProjection = (path: Segment) => {
-    const isHorizontal = isHorizontalDirection(angle(direction(...path)));
-    if (isHorizontal) {
-      return getHorizontalProjection(path);
-    } else {
-      return getVerticalProjection(path);
-    }
   };
 
   [
@@ -232,7 +219,12 @@ export function dataConverter(
     );
   }
 
-  if (isRectangleIntersect(rect1, rect2)) {
+  if (
+    isRectangleIntersect(
+      growRect(rect1, RECTANGLE_MARGIN * 2),
+      growRect(rect2, RECTANGLE_MARGIN * 2),
+    )
+  ) {
     throw new Error("Rectangles intersect");
   }
 
