@@ -46,18 +46,31 @@ export const isConnectionAngleRight = (
   return EdgeTypeAngle[type] === radians;
 };
 
+export const isLineIntersectRect = (line: Point[], rect: Rect) => {
+  if (line.length < 2) return false;
+  const edges = Object.values(getRectEdges(rect));
+  let hasIntersection = false;
+
+  for (let i = 1; i < line.length; i++) {
+    if (hasIntersection) break;
+    const segment: [Point, Point] = [line[i - 1], line[i]];
+    for (const edge of edges) {
+      if (hasIntersection) break;
+      hasIntersection = Boolean(getIntersection(edge, segment));
+    }
+  }
+
+  return hasIntersection;
+};
+
 export const isRectangleIntersect = (rect1: Rect, rect2: Rect): boolean => {
   const rect1Edges = Object.values(getRectEdges(rect1));
-  const rect2Edges = Object.values(getRectEdges(rect2));
 
   let hasIntersection = false;
 
   for (const edge1 of rect1Edges) {
     if (hasIntersection) break;
-    for (const edge2 of rect2Edges) {
-      if (hasIntersection) break;
-      hasIntersection = Boolean(getIntersection(edge1, edge2));
-    }
+    hasIntersection = isLineIntersectRect(edge1, rect2);
   }
 
   return hasIntersection;
@@ -93,3 +106,5 @@ export const getConnectionPointEdge = (
 
   return edge;
 };
+
+export const isPointsEqual = (a: Point, b: Point) => a.x === b.x && a.y === b.y;

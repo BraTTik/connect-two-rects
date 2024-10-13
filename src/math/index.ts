@@ -7,6 +7,10 @@ export function subtract(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y };
 }
 
+export function distance(a: Point, b: Point): number {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
 export function add(a: Point, b: Point): Point {
   return { x: a.x + b.x, y: a.y + b.y };
 }
@@ -95,4 +99,15 @@ export function getIntersection(
   }
 
   return null;
+}
+
+export function lineLength(points: Point[]): number {
+  if (points.length < 2) return 0;
+  let length = 0;
+
+  for (let i = 1; i < points.length; i++) {
+    length += distance(points[i - 1], points[i]);
+  }
+
+  return length;
 }

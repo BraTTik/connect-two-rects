@@ -1,34 +1,28 @@
-import { Line, Rectangle } from "./models";
-import { add, toXY } from "./math";
+import { Line, Point, Rectangle } from "./models";
 import { Workplace } from "./workplace";
+import { dataConverter } from "./data-converter";
 
 const workplace = new Workplace("root");
 workplace.height = window.innerHeight;
 workplace.width = window.innerWidth;
 
-const rect = new Rectangle({ x: 100, y: 100 }, { width: 50, height: 100 });
-const rect3 = new Rectangle({ x: 400, y: 240 }, { width: 50, height: 100 });
+const rect1 = new Rectangle({ x: 100, y: 100 }, { width: 50, height: 100 });
+const rect2 = new Rectangle({ x: 100, y: 300 }, { width: 50, height: 100 });
 const line = new Line();
 
-workplace.addShape(rect);
-workplace.addShape(rect3);
+workplace.addShape(rect1);
+workplace.addShape(rect2);
 workplace.addShape(line);
 
-const cPoint = rect.getConnectionPoint("top", 0.3);
+const cPoint1 = rect1.getConnectionPoint("top", 0.5);
+const cPoint2 = rect2.getConnectionPoint("bottom", 0.5);
 
-const v1 = toXY({
-  magnitude: 10,
-  direction: cPoint.toRadians(),
-});
-
-const perpendicularPoint = add(cPoint, v1);
-
-const v2 = toXY({
-  magnitude: 100,
-  direction: cPoint.toRadians() + Math.PI / 2,
-});
-
-const nextPoint = add(perpendicularPoint, v2);
-line.points.push(cPoint, perpendicularPoint, nextPoint);
+const linePoints = dataConverter(rect1, rect2, cPoint1, cPoint2);
+line.points.push(...linePoints);
 
 workplace.update();
+
+// window.drawLine = function (points: Point[]) {
+//   line.points = points;
+//   workplace.update();
+// };
