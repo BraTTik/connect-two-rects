@@ -9,6 +9,7 @@ import { Rect } from "./types";
 export class Rectangle implements MovableShape, Rect {
   private static MIN_CONNECTION_POINT_POSITION = 0.1;
   private static MAX_CONNECTION_POINT_POSITION = 0.9;
+  public stroke: string = "black";
 
   constructor(
     public position: Point,
@@ -48,6 +49,7 @@ export class Rectangle implements MovableShape, Rect {
   draw(ctx: CanvasRenderingContext2D) {
     const left = this.position.x - this.size.width / 2;
     const top = this.position.y - this.size.height / 2;
+    ctx.strokeStyle = this.stroke;
     ctx.strokeRect(left, top, this.size.width, this.size.height);
   }
 }

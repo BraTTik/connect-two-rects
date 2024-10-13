@@ -1,7 +1,7 @@
 import { ConnectionPoint, Point, Rect } from "../models";
 import {
   getConnectionPointEdge,
-  getRectEdges,
+  getRectBounds,
   isLineIntersectRect,
   isRectangleIntersect,
 } from "../utils";
@@ -109,87 +109,35 @@ const getBoundsPaths = (
   };
 };
 
-const isBetweenPath = (rect1: Rect, rect2: Rect) => {
-  const edges1 = getRectEdges(rect1);
-  const edges2 = getRectEdges(rect2);
-
-  const getX = (
-    type: keyof ReturnType<typeof getRectEdges>,
-    edges: ReturnType<typeof getRectEdges>,
-  ) => edges[type][0].x;
-  const getY = (
-    type: keyof ReturnType<typeof getRectEdges>,
-    edges: ReturnType<typeof getRectEdges>,
-  ) => edges[type][0].y;
-
-  const leftRect = getX("left", edges1) < getX("left", edges2) ? rect1 : rect2;
-  const rightRect = leftRect === rect1 ? rect2 : rect1;
-  const topRect = getY("top", edges1) < getY("top", edges2) ? rect1 : rect2;
-  const bottomRect = topRect === rect1 ? rect2 : rect1;
-
-  const rightEdge = leftRect.position.x + leftRect.size.width / 2;
-  const bottomEdge = topRect.position.y + topRect.size.width / 2;
-
-  const xDistance = Math.abs(
-    rightEdge - rightRect.position.x - rightRect.size.width / 2,
-  );
-  const yDistance = Math.abs(
-    bottomEdge - bottomRect.position.y - bottomRect.size.width / 2,
-  );
-
-  const isVerticalPath = xDistance > RECTANGLE_MARGIN * 2;
-  const isHorizontalPath = yDistance > RECTANGLE_MARGIN * 2;
-
-  return {
-    isVerticalPath,
-    isHorizontalPath,
-    x: rightEdge + xDistance / 2,
-    y: bottomEdge + yDistance / 2,
-  };
-};
-
-const getMiddlePath = (
-  startCLine: [Point, Point],
-  endCLine: [Point, Point],
+const getMiddleEdges = (
   rect1: Rect,
   rect2: Rect,
-) => {
-  const startAngle = angle(direction(...startCLine));
-  const endAngle = angle(direction(...endCLine));
+): { horizontal: Segment; vertical: Segment } => {
+  const bounds1 = getRectBounds(rect1);
+  const bounds2 = getRectBounds(rect2);
 
-  const {
-    isHorizontalPath,
-    isVerticalPath,
-    x: middleX,
-    y: middleY,
-  } = isBetweenPath(rect1, rect2);
+  const leftRect = bounds1.left <= bounds2.left ? bounds1 : bounds2;
+  const topRect = bounds1.top <= bounds2.top ? bounds1 : bounds2;
 
-  const canHasMiddlePath =
-    isOppositeDirection(startAngle, endAngle) &&
-    ((isHorizontalDirection(startAngle) && isHorizontalPath) ||
-      (isVerticalDirection(startAngle) && isVerticalPath));
+  const rightRect = leftRect === bounds1 ? bounds2 : bounds1;
+  const bottomRect = topRect === bounds1 ? bounds2 : bounds1;
 
-  const getHorizontalMiddlePath = () => {
-    const y = middleY;
-    return [
-      { x: startCLine[1].x, y },
-      { x: endCLine[0].x, y },
-    ];
+  const xDistance = leftRect.right - rightRect.left;
+  const yDistance = topRect.bottom - bottomRect.top;
+
+  const xCenter = leftRect.right - xDistance / 2;
+  const yCenter = bottomRect.bottom - yDistance / 2;
+
+  return {
+    horizontal: [
+      { x: leftRect.left, y: yCenter },
+      { x: rightRect.right, y: yCenter },
+    ],
+    vertical: [
+      { x: xCenter, y: topRect.top },
+      { x: xCenter, y: bottomRect.bottom },
+    ],
   };
-  const getVerticalMiddlePath = () => {
-    const x = middleX;
-    return [
-      { x, y: startCLine[1].y },
-      { x, y: endCLine[0].y },
-    ];
-  };
-
-  if (!canHasMiddlePath) return null;
-  return isHorizontalPath
-    ? getHorizontalMiddlePath()
-    : isVerticalPath
-      ? getVerticalMiddlePath()
-      : null;
 };
 
 const findShortestPath = (
@@ -198,16 +146,12 @@ const findShortestPath = (
   rect1: Rect,
   rect2: Rect,
 ) => {
-  const middlePath = getMiddlePath(startCLine, endCLine, rect1, rect2);
-
   const [cPoint1, startPoint] = startCLine;
   const [endPoint, cPoint2] = endCLine;
 
-  if (middlePath) {
-    return [...startCLine, ...middlePath, ...endCLine];
-  }
-
   const paths = getBoundsPaths(pathBounds(rect1, rect2));
+  const middlePaths = getMiddleEdges(rect1, rect2);
+
   let shortestPath: { distance: number; points: Point[] } = {
     distance: Infinity,
     points: [],
@@ -229,7 +173,20 @@ const findShortestPath = (
     ];
   };
 
-  Object.values(paths).forEach((segment) => {
+  const getMiddleProjection = (path: Segment) => {
+    const isHorizontal = isHorizontalDirection(angle(direction(...path)));
+    if (isHorizontal) {
+      return getHorizontalProjection(path);
+    } else {
+      return getVerticalProjection(path);
+    }
+  };
+
+  [
+    ...Object.values(paths),
+    middlePaths.horizontal,
+    middlePaths.vertical,
+  ].forEach((segment) => {
     const isHorizontal = isHorizontalDirection(angle(direction(...segment)));
     let middleSegment: Point[];
     if (isHorizontal) {
@@ -246,7 +203,7 @@ const findShortestPath = (
     ) {
       const distance = lineLength(path);
 
-      if (distance < shortestPath.distance) {
+      if (distance && distance < shortestPath.distance) {
         shortestPath = { distance, points: path };
       }
     }
