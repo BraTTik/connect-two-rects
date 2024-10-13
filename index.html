@@ -3,15 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Connect Two Rectangles</title>
-    <style>
-        body {
-            padding: 0;
-            margin: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="./index.css" />
 </head>
 <body>
 <canvas id="root"></canvas>
+<div id="panel">
+    <label>
+        Rect 1 CPoint
+        <select id="rect1">
+            <option value="top" selected>Top</option>
+            <option value="bottom">Bottom</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+        </select>
+    </label>
+    <label>
+        Rect 2 CPoint
+        <select id="rect2">
+            <option value="top">Top</option>
+            <option value="bottom" selected>Bottom</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+        </select>
+    </label>
+</div>
 <script type="module" src="/src/index.ts"></script>
 </body>
 </html>
