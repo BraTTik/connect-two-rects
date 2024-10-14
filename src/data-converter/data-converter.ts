@@ -3,6 +3,7 @@ import {
   getConnectionPointEdge,
   getDistanceBetweenRects,
   getLeftRightRect,
+  getRectBounds,
   growRect,
   isLineIntersectRect,
   isRectangleIntersect,
@@ -69,26 +70,13 @@ const createSimplestLine = (
 };
 
 const pathBounds = (rect1: Rect, rect2: Rect): PathBounds => {
-  const left =
-    Math.min(
-      rect1.position.x - rect1.size.width / 2,
-      rect2.position.x - rect2.size.width / 2,
-    ) - RECTANGLE_MARGIN;
-  const right =
-    Math.max(
-      rect1.position.x + rect1.size.width / 2,
-      rect2.position.x + rect2.size.width / 2,
-    ) + RECTANGLE_MARGIN;
-  const top =
-    Math.min(
-      rect1.position.y - rect1.size.height / 2,
-      rect2.position.y - rect2.size.height / 2,
-    ) - RECTANGLE_MARGIN;
-  const bottom =
-    Math.max(
-      rect1.position.y + rect1.size.height / 2,
-      rect2.position.y + rect2.size.height / 2,
-    ) + RECTANGLE_MARGIN;
+  const bounds1 = getRectBounds(growRect(rect1, RECTANGLE_MARGIN * 2));
+  const bounds2 = getRectBounds(growRect(rect2, RECTANGLE_MARGIN * 2));
+  const left = Math.min(bounds1.left, bounds2.left);
+  const right = Math.max(bounds2.right, bounds1.right);
+
+  const top = Math.min(bounds1.top, bounds2.top);
+  const bottom = Math.max(bounds1.bottom, bounds2.bottom);
 
   return {
     topLeft: { x: left, y: top },
@@ -122,7 +110,7 @@ const getMiddleEdges = (
   const { xDistance, yDistance } = getDistanceBetweenRects(rect1, rect2);
 
   const xCenter = leftRect.right - xDistance / 2;
-  const yCenter = bottomRect.bottom - yDistance / 2;
+  const yCenter = topRect.bottom - yDistance / 2;
 
   return {
     horizontal: [
@@ -155,8 +143,9 @@ const findShortestPath = (
 
   const getHorizontalProjection = (path: Segment) => {
     const y = path[0].y;
+
     return [
-      { x: startCLine[1].x, y: path[0].y },
+      { x: startCLine[1].x, y },
       { x: endCLine[0].x, y },
     ];
   };
@@ -173,20 +162,20 @@ const findShortestPath = (
     ...Object.values(paths),
     middlePaths.horizontal,
     middlePaths.vertical,
-  ].forEach((segment) => {
+  ].forEach((segment, index, arr) => {
     const isHorizontal = isHorizontalDirection(angle(direction(...segment)));
     let middleSegment: Point[];
+
     if (isHorizontal) {
       middleSegment = getHorizontalProjection(segment);
     } else {
       middleSegment = getVerticalProjection(segment);
     }
-
     const path = [startPoint, ...middleSegment, endPoint];
 
     if (
-      !isLineIntersectRect(path, rect1) &&
-      !isLineIntersectRect(path, rect2)
+      !isLineIntersectRect(path, growRect(rect1, RECTANGLE_MARGIN * 2 - 1)) &&
+      !isLineIntersectRect(path, growRect(rect2, RECTANGLE_MARGIN * 2 - 1))
     ) {
       const distance = lineLength(path);
 

@@ -147,3 +147,8 @@ export const growRect = (rect: Rect, value: number): Rect => ({
   ...rect,
   size: { height: rect.size.height + value, width: rect.size.width + value },
 });
+
+export const shrinkRect = (rect: Rect, value: number): Rect => ({
+  ...rect,
+  size: { height: rect.size.height - value, width: rect.size.width - value },
+})
