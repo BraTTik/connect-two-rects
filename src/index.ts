@@ -18,17 +18,6 @@ workplace.addShape(rect1);
 workplace.addShape(rect2);
 workplace.addShape(line);
 
-var debugLine = new Line();
-var debugRect = new Rectangle({ x: 0, y: 0 }, { width: 0, height: 0 });
-
-window.line = debugLine;
-workplace.addShape(debugLine);
-workplace.addShape(debugRect);
-
-window.update = () => {
-  workplace.update();
-};
-
 const selectChange = () => {
   redrawConnectionLine();
   workplace.update();
